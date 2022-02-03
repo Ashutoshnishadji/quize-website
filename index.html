@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: rgb(223, 250, 241);
+        }
+
+        .main_box_1 {
+            border: black solid 2px;
+            background-color: rgb(146, 230, 202);
+            width: 70%;
+            height: 500px;
+            margin: auto;
+            margin-top: 100px;
+            box-sizing: border-box;
+            padding: 15px;
+        }
+
+        .innerbox_2 {
+            box-sizing: border-box;
+            box-shadow: black 2px 2px 7px 1px;
+            ;
+            /* box-shadow: 5px ; */
+            background-color: white;
+            width: 90%;
+            height: 95%;
+            margin: auto;
+            padding: 10px;
+        }
+
+        .q_b_1 {
+            box-sizing: border-box;
+            margin: 5px;
+            width: 80%;
+            font-size: 40px;
+            height: 100px;
+            resize: none;
+        }
+
+        .ans_box {
+            box-sizing: border-box;
+            font-size: 50px;
+        }
+
+        .pn_b {
+            width: 20%;
+            margin: auto;
+            margin-top: 20px;
+        }
+
+        .rg_1 {
+            width: 100%;
+        }
+
+        .rd-div {
+            width: 90%;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: aqua;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Test name</h1>
+    </header>
+    <button id="ashuji">SEND</button>
+    <div>
+        <input type="text" name="" id="link">
+    </div>
+    <section class="main_box_1">
+
+        <div class="innerbox_2">
+            <div class="tools">
+
+                Q. index : <span class="q_num"></span>
+            </div>
+            <div class="q_box">
+                <textarea name="qution" class="q_b_1"></textarea>
+            </div>
+            <hr>
+            <div class="ans_box">
+                <div class="op1_box">
+                    <input type="radio" name="op1_q1" class="op1_q1" onclick="answerclicked(0);">
+                    <input type="text" name="op1" class="op1" placeholder="option 1">
+                </div>
+                <div class="op1_box">
+                    <input type="radio" name="op1_q1" class="op1_q1" onclick="answerclicked(1);">
+                    <input type="text" name="op1" class="op2" placeholder="option 2">
+                </div>
+                <div class="op1_box">
+                    <input type="radio" name="op1_q1" class="op1_q1" onclick="answerclicked(2);">
+                    <input type="text" name="op1" class="op3" placeholder="option 3">
+                </div>
+                <div class="op1_box">
+                    <input type="radio" name="op1_q1" class="op1_q1" onclick="answerclicked(3);">
+                    <input type="text" name="op1" class="op4" placeholder="option 4">
+                </div>
+            </div>
+            <hr>
+            <input type="number" name="marks" class="mrks_input" placeholder="Marks">
+            <button class="adq_B"> Add Quetion </button> <button class="dltbtn">
+                DELET
+            </button>
+        </div>
+
+        <div>
+        </div>
+    </section>
+
+    <div class="pn_b">
+        <button class="pervbtn">Prev</button> <button class="nextbtn">Next</button>
+    </div>
+    <div class="rd-div">
+
+        <input type="range" name="rg" class="rg_1">
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+    <script>
+
+        var num = 0;
+        var total = 1;
+        var n = 0;
+        var ans;
+        document.getElementsByClassName("q_num")[num].innerHTML = num + 1;
+
+        socket.on("linkfor", (link) => {
+            window.location = link;
+        })
+
+        function answerclicked(num) {
+            ans = num;
+        }
+
+        var obj = {};
+        socket.on('senddata', (data) => {
+            obj = data;
+        })
+        document.getElementById("ashuji").onclick = () => {
+            socket.emit("senddata", obj)
+
+
+        }
+        document.getElementsByClassName("adq_B")[num].onclick = () => {
+            let q = {};
+
+            q.qetion = document.getElementsByClassName("q_b_1")[num].value;
+            q.option1 = document.getElementsByClassName("op1")[num].value;
+            q.option2 = document.getElementsByClassName("op2")[num].value;
+            q.option3 = document.getElementsByClassName("op3")[num].value;
+            q.option4 = document.getElementsByClassName("op4")[num].value;
+            q.marks = document.getElementsByClassName("mrks_input")[num].value;
+            q.ans = ans;
+
+            console.log(q);
+            obj[n] = q;
+
+        }
+
+        function load() {
+            if (obj[n]) {
+                let q = obj[n];
+                document.getElementsByClassName("q_num")[num].innerHTML = n + 1;
+                document.getElementsByClassName("q_b_1")[num].value = q.qetion;
+                document.getElementsByClassName("op1")[num].value = q.option1;
+                document.getElementsByClassName("op3")[num].value = q.option2;
+                document.getElementsByClassName("op3")[num].value = q.option3;
+                document.getElementsByClassName("op4")[num].value = q.option4;
+                document.getElementsByClassName("mrks_input")[num].value = q.marks;
+            }
+            else {
+                document.getElementsByClassName("q_num")[num].innerHTML = n + 1;
+                document.getElementsByClassName("q_b_1")[num].value = "";
+                document.getElementsByClassName("op1")[num].value = "";
+                document.getElementsByClassName("op2")[num].value = "";
+                document.getElementsByClassName("op3")[num].value = "";
+                document.getElementsByClassName("op4")[num].value = "";
+
+                document.getElementsByClassName("mrks_input")[num].value = 0;
+
+            }
+        }
+
+        document.getElementsByClassName("pervbtn")[num].onclick = () => {
+            if (n > 0) {
+                n--;
+                load();
+            }
+
+        }
+        document.getElementsByClassName("nextbtn")[num].onclick = () => {
+            n++;
+
+            load();
+            if (n > total) {
+                total++;
+
+            }
+
+        }
+    </script>
+</body>
+
+</html>

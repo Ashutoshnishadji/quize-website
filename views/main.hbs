@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: aquamarine;
+        }
+
+        .q_div {
+
+            width: 80%;
+            /* border: black solid 2px; */
+            background-color: white;
+            box-shadow: black 8px 8px 5px 3px;
+            margin: auto;
+            padding: 15px;
+            margin-top: 29px;
+            margin-bottom: 10px;
+        }
+
+        .qu_div {
+            padding: 10px;
+            margin: 5px;
+
+        }
+
+        .ansdiv {
+            padding: 20px;
+        }
+
+        .op_div {
+            padding: 5px;
+        }
+
+        #akj {
+            width: 80%;
+            margin: auto;
+            padding: 15px;
+        }
+
+        #submitbtn {
+            background-color: aqua;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="ashu">
+        <div class="q_div">
+            <div class="qu_div">
+                <b class="qution">Name: </b>
+            </div>
+            <br>
+            <input type="text" name="s_name" id="sname">
+        </div>
+    </section>
+
+    <div id="akj">
+        <button id="submitbtn">Submit</button>
+    </div>
+
+
+    <div id="data" style="display: none;">
+        {{data}}
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+    <script>
+        socket.on("nomber" , (d)=>{
+            console.log(d);
+            document.getElementsByTagName("body")[0].removeChild(document.getElementById("ashu"))
+        })
+        var obj;
+        var ansobj = {};
+        window.onload = () => {
+            let data = document.getElementById("data").innerText;
+            obj = JSON.parse(data);
+            console.log(obj);
+            document.getElementById("data").innerText = "";
+
+            for (let element in obj) {
+                console.log(obj[element]);
+                let elem = {};
+                let d_q = obj[element];
+                elem.qetion = d_q.qetion;
+                elem.ans = -1;
+                ansobj[element] = elem;
+                let sec = document.createElement("div");
+                sec.className = "q_div";
+                sec.innerHTML = `<div class="qu_div">
+                <b class="qution">${d_q.qetion} </b>
+            </div>
+            <hr>
+            <div class="ansdiv">
+                <div class="op_div">
+                    <input type="radio" name="idcn${element}"  onclick="answerclicked(0 , ${element});" class="ratiobtn">
+                    <b class="op" >${d_q.option1}</b>
+                </div>
+                <div class="op_div">
+                    <input type="radio" name="idcn${element}" onclick="answerclicked(1 , ${element});" class="ratiobtn">
+                    <b class="op">${d_q.option2}</b>
+                </div>
+                <div class="op_div">
+                    <input type="radio" name="idcn${element}" onclick="answerclicked(2 , ${element});" class="ratiobtn">
+                    <b class="op">${d_q.option3}</b>
+                </div>
+                <div class="op_div">
+                    <input type="radio" name="idcn${element}" onclick="answerclicked(3 , ${element});" class="ratiobtn">
+                    <b class="op">${d_q.option4}</b>
+                </div>
+            </div>`
+
+                document.getElementById("ashu").appendChild(sec);
+            }
+
+        }
+
+        var html_content = `<div class="q_div">
+            
+        </div>`;
+        var id = "{{ id }}";
+        function answerclicked(n, elem) {
+
+            ansobj[elem].ans = n;
+        }
+
+        document.getElementById("submitbtn").onclick = () => {
+            console.log( { answer: ansobj, data: { sname: document.getElementById("sname").value, q_book: id } });
+            socket.emit("send-data", { answer: ansobj, data: { sname: document.getElementById("sname").value, q_book: id } });
+    
+        }
+    </script>
+</body>
+
+</html>
